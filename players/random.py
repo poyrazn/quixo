@@ -7,8 +7,4 @@ class Player(Player):
         index = randint(0, len(available_moves) - 1)
         move = available_moves[index]
 
-        return [
-            move.row,
-            move.column,
-            move.shift
-            ]
+        return [move.row, move.column, move.shift]

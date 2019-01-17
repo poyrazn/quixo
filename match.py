@@ -5,102 +5,109 @@ import pydoc
 
 
 class Match:
-    def __init__(self, game, state, timeout):
-        self.game = game
-        self.state = state
-        self.players = {}
-        self.timeout = timeout
+	def __init__(self, game, state, timeout):
+		self.game = game
+		self.state = state
+		self.players = {}
+		self.timeout = timeout
 
-    def set_players(self):
-        players = []
-        player_classes = []
-        incorrect_input = True
 
-        while incorrect_input:
-            players = input('\nWho are the players?\n(Example: "manual random")\n')
-            players = players.split(' ')
+	def playersvs(self, player1, player2):
+		players = [player1, player2]
+		player_classes = [pydoc.locate('players.' + player) for player in players]
+		players = [player.Player(players[index]) for index, player in enumerate(player_classes)]
+		self.players = {1: players[0], -1: players[1]}
 
-            if len(players) != 2:
-                print('!-- Incorrect number of players --!')
-                continue
+	def set_players(self):
+		players = []
+		player_classes = []
+		incorrect_input = True
 
-            player_classes = [pydoc.locate('players.' + player) for player in players]
-            incorrect_class = False
+		while incorrect_input:
+			players = input('\nWho are the players?\n(Example: "manual random")\n')
+			players = players.split(' ')
 
-            for index, player in enumerate(player_classes):
-                if player is None:
-                    incorrect_class = True
-                    print('!-- The player "' + players[index] + '" does not exist --!')
+			if len(players) != 2:
+				print('!-- Incorrect number of players --!')
+				continue
 
-            if incorrect_class:
-                continue
+			player_classes = [pydoc.locate('players.' + player) for player in players]
+			incorrect_class = False
 
-            incorrect_input = False
+			for index, player in enumerate(player_classes):
+				if player is None:
+					incorrect_class = True
+					print('!-- The player "' + players[index] + '" does not exist --!')
 
-        players = [player.Player(players[index]) for index, player in enumerate(player_classes)]
+			if incorrect_class:
+				continue
 
-        self.players = {1: players[0], -1: players[1]}
+			incorrect_input = False
 
-    def start(self):
-        print('\nPlayer1: ' + str(self.players[1].name) + ' (o)')
-        print('Player2: ' + str(self.players[-1].name) + ' (x)\n')
+		players = [player.Player(players[index]) for index, player in enumerate(player_classes)]
 
-        # for i in range(5, 0, -1):
-        #     sys.stdout.write('\rStarting in ' + str(i) + ' seconds')
-        #     sys.stdout.flush()
-        #     time.sleep(1)
-        # print('\n')
+		self.players = {1: players[0], -1: players[1]}
 
-        turns = 0
-        while True:
-            print('\nTurn: ' + self.players[self.state.current_player].name + ' (' + ('o' if self.state.current_player == 1 else 'x') + ')')
+	def start(self):
+		print('\nPlayer1: ' + str(self.players[1].name) + ' (o)')
+		print('Player2: ' + str(self.players[-1].name) + ' (x)\n')
 
-            self.game.print_board(self.state)
+		# for i in range(5, 0, -1):
+		#     sys.stdout.write('\rStarting in ' + str(i) + ' seconds')
+		#     sys.stdout.flush()
+		#     time.sleep(1)
+		# print('\n')
 
-            move = self.get_player_move()
+		turns = 0
+		while True:
+			print('\nTurn: ' + self.players[self.state.current_player].name + ' (' + ('o' if self.state.current_player == 1 else 'x') + ')')
 
-            print(move)
+			self.game.print_board(self.state)
 
-            self.players[self.state.current_player].set_move_history(move)
+			move = self.get_player_move()
 
-            self.state = self.game.apply_move(self.state, move)
+			print(move)
 
-            turns += 1
+			self.players[self.state.current_player].set_move_history(move)
 
-            if self.state.winner:
-                break
+			self.state = self.game.apply_move(self.state, move)
 
-        print('\n\n!!! GAME ENDED !!!\n\n')
+			turns += 1
 
-        self.game.print_board(self.state)
+			if self.state.winner:
+				break
 
-        if self.state.winner == 'Draw':
-            print('\nDraw.')
-        else:
-            print(
-                '\nWinner: ' +
-                self.players[self.state.winner].name +
-                ' (' +
-                ('o' if self.state.winner == 1 else 'x') +
-                ')'
-                )
+		print('\n\n!!! GAME ENDED !!!\n\n')
 
-        print('\nNumber of turns: ' + str(turns))
+		self.game.print_board(self.state)
 
-    def get_player_move(self):
-        row, column, shift = self.players[self.state.current_player].decide(
-            self.game,
-            self.state,
-            self.game.get_moves(self.state),
-            self.players[self.state.current_player * -1].move_history
-        )
+		if self.state.winner == 'Draw':
+			print('\nDraw.')
+		else:
+			print(
+				'\nWinner: ' +
+				self.players[self.state.winner].name +
+				' (' +
+				('o' if self.state.winner == 1 else 'x') +
+				')'
+				)
 
-        move = self.game.create_move(self.state, row, column, shift, False)
+		print('\nNumber of turns: ' + str(turns))
 
-        if move == False:
-            print('The player "'
-                  + self.players[self.state.current_player].name
-                  + '" made an incorrect move. \nThe move was: ' + str((row, column, shift)))
-            exit()
+	def get_player_move(self):
+		row, column, shift = self.players[self.state.current_player].decide(
+			self.game,
+			self.state,
+			self.game.get_moves(self.state),
+			self.players[self.state.current_player * -1].move_history
+		)
 
-        return move
+		move = self.game.create_move(self.state, row, column, shift, False)
+
+		if move == False:
+			print('The player "'
+				  + self.players[self.state.current_player].name
+				  + '" made an incorrect move. \nThe move was: ' + str((row, column, shift)))
+			exit()
+
+		return move

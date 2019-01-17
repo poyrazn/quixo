@@ -120,8 +120,7 @@ class Quixo:
                 print('Opponents pieces cannot be moved')
             return False
 
-        if (row not in [0, self.rows - 1] and
-                column not in [0, self.columns - 1]):
+        if (row not in [0, self.rows - 1] and column not in [0, self.columns - 1]):
             if (log): print('Only the pieces on the sides can be moved')
             return False
 

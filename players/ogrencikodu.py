@@ -3,7 +3,6 @@
 # quixo
 #
 # Created by Nehir Poyraz on 18.01.2019
-# Copyright 2019 Nehir Poyraz. All rights reserved.
 
 
 from player import Player
@@ -36,7 +35,6 @@ class Player(Player):
 
 		"""
 		statecopy = copy.deepcopy(state)
-		print(available_moves)
 		root = GameNode(game, None, statecopy, available_moves, None)
 		tree = GameTree(root)
 		minimaxAB = AlphaBeta(tree)
@@ -66,7 +64,8 @@ class GameNode:
 		self.action = action
 
 	def addChild(self, childNode):
-		self.children.append(childNode)
+		if childNode not in self.children:
+			self.children.append(childNode)
 
 	def expand(self):
 		"""
@@ -119,7 +118,6 @@ class GameNode:
 
 		# max(count): maximum number of player's tiles in a row, column, or a diagonal (the highest value is 5)
 		# max(opponentcount): maximum number of opponent's tiles in a row, column, or a diagonal (the highest value is 5)
-
 		scoremax = 5 ** max(count)
 		scoremin = 5 ** max(opponentcount)
 
@@ -205,19 +203,16 @@ class AlphaBeta:
 
 		return value
 
-
-	# successor states in a game tree are the child nodes...
+	# successor states in a game tree are the child nodes
 	def getSuccessors(self, node):
 		assert node is not None
 		return node.children
-
 
 	# return true if the node has NO children (successor states)
 	# return false if the node has children (successor states)
 	def isTerminal(self, node):
 		assert node is not None
 		return len(node.children) == 0
-
 
 	def getUtility(self, node):
 		assert node is not None

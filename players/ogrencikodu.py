@@ -19,8 +19,24 @@ class Player(Player):
 		self.move = None
 
 	def decide(self, game, state, available_moves, opponent_moves):
-		# This student wants to to play the same move everytime
+		"""
+
+		This method returns a Move that the player decides
+
+		:param game: Quixo object (fn calls)
+		:param state: State object (attr: board, current_player, winner)
+		:param available_moves: a list of Move objects (Move attr: row, column, shift)
+		:param opponent_moves: a list of Move objects (Move attr: row, column, shift)
+		:return: decided Move
+
+		First a GameNode is created with given parameters, then a GameTree with the root being the recently created node.
+		The tree is then searched to find the best state the agent can be in using minimax search with alpha-beta pruning technique.
+		The move is decided as the action that leads to the best state.
+
+
+		"""
 		statecopy = copy.deepcopy(state)
+		print(available_moves)
 		root = GameNode(game, None, statecopy, available_moves, None)
 		tree = GameTree(root)
 		minimaxAB = AlphaBeta(tree)
@@ -32,8 +48,17 @@ class Player(Player):
 
 class GameNode:
 	def __init__(self, game, action, state, available_moves, parent=None):
+		"""
+
+
+		:param game: Quixo object (fn calls)
+		:param action: the action that leads to this node
+		:param state: State object (attr: board, current_player, winner)
+		:param available_moves: a list of Move objects (Move attr: row, column, shift)
+		:param parent: Parent node of this node
+		"""
 		self.Game = game
-		self.State = state      # a char
+		self.State = state
 		self.value = self.evaluate(self.State)
 		self.parent = parent  # a node reference
 		self.moves = available_moves
@@ -44,6 +69,10 @@ class GameNode:
 		self.children.append(childNode)
 
 	def expand(self):
+		"""
+		expands children of a node (makes available moves in current state and appends resultant states as children)
+		:return:
+		"""
 		for move in self.moves:
 			m = self.Game.create_move(self.State, move.row, move.column, move.shift, False)
 			childstate = self.Game.apply_move(copy.deepcopy(self.State), m)
@@ -52,7 +81,23 @@ class GameNode:
 
 
 	def evaluate(self, state):
-		transpose = state.board.transpose()
+		"""
+		Heuristic function for state value, returns a score(int)
+
+		:param state: current state, State object (attr: board, current_player, winner)
+		:return: int
+
+		for every row, column and diagonal it counts the number of player's tiles and opponent's tiles and stores in lists.
+		score is calculated as
+		score = 5^(p) - 5^(o)
+		p = max number of player's tiles in a row, column or diagonal (from the search space of every row, column and diagonal)
+		o = max num of opponent's tiles in a row, column or diagonal
+
+		this way, it is mostly guaranteed that the player wants to choose states where itself is closer to finish than its opponent.
+
+
+		"""
+		transpose = state.board.transpose()		# columns in state.board = rows in transpose
 		count = []
 		opponentcount = []
 		for row, column in zip(state.board, transpose):
@@ -72,6 +117,9 @@ class GameNode:
 		opponentcount.append(main_diagonal_count.get(state.current_player * - 1, 0))
 		opponentcount.append(second_diagonal_count.get(state.current_player * -1, 0))
 
+		# max(count): maximum number of player's tiles in a row, column, or a diagonal (the highest value is 5)
+		# max(opponentcount): maximum number of opponent's tiles in a row, column, or a diagonal (the highest value is 5)
+
 		scoremax = 5 ** max(count)
 		scoremin = 5 ** max(opponentcount)
 
@@ -80,7 +128,17 @@ class GameNode:
 
 
 class GameTree:
+
 	def __init__(self, root):
+		"""
+		:param root: root node (GameNode)
+
+		constructs a game tree where the root is given
+		(expands root and then expands children, generally results in a game tree of height 2 if there are available moves)
+
+		Tree structure (relative to the root): 	(root->children->grandchildren)
+
+		"""
 		self.root = root
 		current = root
 		current.expand()
@@ -98,6 +156,13 @@ class AlphaBeta:
 		return
 
 	def alpha_beta_search(self, node):
+		"""
+		:param node: current node
+		:return: best state (child node)
+
+		min max tree search with alpha-beta pruning assuming the player is maximizing player
+
+		"""
 		infinity = float('inf')
 		best_val = -infinity
 		beta = infinity

@@ -43,11 +43,7 @@ class Quixo:
 
         winner = self.determine_winner(state.board) if self.check_for_winner(state.board) else None
 
-        return State(
-            state.board,
-            state.current_player * -1,
-            winner
-            )
+        return State(state.board,state.current_player * -1, winner)
 
     def get_moves(self, state):
         moves = []

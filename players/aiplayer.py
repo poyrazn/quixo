@@ -1,5 +1,5 @@
 #
-# ogrencikodu
+# aiplayer
 # quixo
 #
 # Created by Nehir Poyraz on 18.01.2019
@@ -9,6 +9,7 @@ from player import Player
 import collections
 import numpy as np
 import copy
+
 
 class Player(Player):
 	def __init__(self, name):
@@ -32,7 +33,6 @@ class Player(Player):
 		The tree is then searched to find the best state the agent can be in using minimax search with alpha-beta pruning technique.
 		The move is decided as the action that leads to the best state.
 
-
 		"""
 		statecopy = copy.deepcopy(state)
 		root = GameNode(game, None, statecopy, available_moves, None)
@@ -43,11 +43,9 @@ class Player(Player):
 		return [move.row, move.column, move.shift]
 
 
-
 class GameNode:
 	def __init__(self, game, action, state, available_moves, parent=None):
 		"""
-
 
 		:param game: Quixo object (fn calls)
 		:param action: the action that leads to this node
@@ -77,7 +75,6 @@ class GameNode:
 			childstate = self.Game.apply_move(copy.deepcopy(self.State), m)
 			child = GameNode(self.Game, m, childstate, self.Game.get_moves(childstate), self)
 			self.addChild(child)
-
 
 	def evaluate(self, state):
 		"""
@@ -124,7 +121,6 @@ class GameNode:
 		return scoremax - scoremin
 
 
-
 class GameTree:
 
 	def __init__(self, root):
@@ -143,8 +139,6 @@ class GameTree:
 		if len(current.children) > 0:
 			for child in current.children:
 				child.expand()
-
-
 
 
 class AlphaBeta:

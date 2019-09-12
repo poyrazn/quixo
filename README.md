@@ -28,7 +28,7 @@ ABOUT SHIFT DIRECTION PARAMETER
 3 -> Place the piece to the board from the right side
 
 
-# AI Quixo Player
+# AI Quixo Player
 
 AI player for Quixo game is developed using minimax algorithm with alpha-beta pruning.
 
